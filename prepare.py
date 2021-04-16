@@ -1,5 +1,93 @@
 import pandas as pd
 import numpy as np
+import acquire as a
+import datetime as dt
+
+
+
+##########################################################################################
+
+# Preparation of Zach's Sales Data
+
+##########################################################################################
+
+
+
+def prep_sales():
+    '''
+    
+    In order to run this function: the function complete_data must have been run.
+    
+    This function takes output of complete_data from the acquire.py function, preps, and returns the dataframe for exploration.
+    
+    '''
+    
+    # Creates dataframe from complete_data function in acquire.py
+    df = a.complete_data(cached=True)
+    
+    # sale_date column is converted to datetime and set as the index
+    df.sale_date = pd.to_datetime(df.sale_date)
+    df.set_index(df.sale_date, inplace=True)
+    
+    # Create the columns 'month' and 'day_of_week'
+    df['month'] = df.index.month
+    df['day_of_week'] = df.index.day_name()
+    
+    # Create 'sale_total' column
+    df['sales_total'] = df.sale_amount * df.item_price
+    
+    return df
+
+
+
+
+##########################################################################################
+
+# Preparation of Germany Energy Consumption Data
+
+##########################################################################################
+
+
+def prep_germany(cached=False):
+    '''
+    
+    This function pulls and preps the Germany Energy Consumption dataframe for exploration
+    
+    if cached == False: collects the csv from the url
+    if cached == True: pulls the already saved dataframe
+    
+    '''
+    
+    if cached == False: 
+        # url to opsd_germany_daily.csv
+        url = 'https://raw.githubusercontent.com/jenfly/opsd/master/opsd_germany_daily.csv'
+        # uses pull_csv function from acquire.py to collect the dataset
+        df = a.pull_csv(url)
+        # caches the dataset as a csv 
+        df = pd.to_csv('opsd_germany_daily.csv')
+        
+    # cached == True
+    else:
+        # pulls csv as data from
+        df = pd.read_csv('opsd_germany_daily.csv')
+    
+    # Lowercases the columns and renames 'wind+solar' columns to 'wind_and_solar'
+    df.columns = df.columns.str.lower() 
+    df.rename(columns={'wind+solar': 'wind_and_solar'}, inplace=True)
+    
+    # Conver date to datetime and set date as index
+    df.date = pd.to_datetime(df.date)
+    df.set_index(df.date, inplace=True)
+    
+    # Creates the month and year columns
+    df['month'] = df.index.month
+    df['year'] = df.index.year
+    
+    # Fills nulls with 0 
+    df.fillna(0, inplace=True)
+    
+    return df
+
 
 
 
