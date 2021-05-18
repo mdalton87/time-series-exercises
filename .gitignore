@@ -1,6 +1,5 @@
 # My files
 env.py
-*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
